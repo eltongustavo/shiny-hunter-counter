@@ -13,9 +13,11 @@ class _CounterScreenState extends State<CounterScreen> {
   final DatabaseHelper _databaseHelper = DatabaseHelper();
 
   String _selectedPokemon = 'Bulbasaur'; // Pokémon padrão
-  String _pokemonSprite = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png'; // Sprite do Bulbasaur
+  String _pokemonSprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/1.png"; //bulbasaur
   String _selectedGame = 'Pokémon Sword'; // Jogo padrão
-  String _selectedMethod = 'Masuda Method'; // Método padrão
+  String _selectedMethod = 'Random Encounter'; // Método padrão
+
+
 
   final List<String> _pokemons = [
 
@@ -154,7 +156,8 @@ class _CounterScreenState extends State<CounterScreen> {
   void _onPokemonChanged(String? pokemon) {
     setState(() {
       _selectedPokemon = pokemon ?? 'Bulbasaur';
-      _pokemonSprite = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${_pokemons.indexOf(_selectedPokemon) + 1}.png';
+      // Corrigindo a URL para pegar a imagem shiny
+      _pokemonSprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${_pokemons.indexOf(_selectedPokemon) + 1}.png";
     });
   }
 
@@ -176,8 +179,8 @@ class _CounterScreenState extends State<CounterScreen> {
                     children: [
                       Image.network(
                         _pokemonSprite,
-                        width: 50,
-                        height: 50,
+                        width: 80,
+                        height: 80,
                       ),
                       const SizedBox(width: 10),
                       Text(
@@ -278,8 +281,8 @@ class _CounterScreenState extends State<CounterScreen> {
                 const SizedBox(width: 20),
                 Image.network(
                   _pokemonSprite,
-                  width: 50,
-                  height: 50,
+                  width: 100,
+                  height: 100,
                 ),
               ],
             ),
