@@ -14,8 +14,8 @@ class ShinyCounterApp extends StatelessWidget {
     return MaterialApp(
       title: 'Shiny Hunt Tracker',
       theme: ThemeData.dark().copyWith(
-        primaryColor: Colors.redAccent, // Cor inspirada na Pokédex
-        scaffoldBackgroundColor: Colors.black87, // Fundo mais escuro
+        primaryColor: Colors.redAccent,
+        scaffoldBackgroundColor: Colors.black87,
       ),
       home: const HomeScreen(),
     );
@@ -47,12 +47,11 @@ class HomeScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const LibraryScreen()),
+                  MaterialPageRoute(builder: (context) => LibraryScreen()),
                 );
               },
               child: const Text('Minha Biblioteca'),
             ),
-
           ],
         ),
       ),
