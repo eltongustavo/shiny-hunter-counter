@@ -18,6 +18,8 @@ class _CounterScreenState extends State<CounterScreen> {
   String _selectedMethod = 'Masuda Method'; // Método padrão
 
   final List<String> _pokemons = [
+
+    //Kanto Pokémon 01-151
     'Bulbasaur', 'Ivysaur', 'Venusaur', 'Charmander', 'Charmeleon', 'Charizard',
     'Squirtle', 'Wartortle', 'Blastoise', 'Caterpie', 'Metapod', 'Butterfree',
     'Weedle', 'Kakuna', 'Beedrill', 'Pidgey', 'Pidgeotto', 'Pidgeot', 'Rattata',
@@ -26,34 +28,95 @@ class _CounterScreenState extends State<CounterScreen> {
     'Nidorino', 'Nidoking', 'Clefairy', 'Clefable', 'Vulpix', 'Ninetales',
     'Jigglypuff', 'Wigglytuff', 'Zubat', 'Golbat', 'Oddish', 'Gloom', 'Vileplume',
     'Paras', 'Parasect', 'Venonat', 'Venomoth', 'Diglett', 'Dugtrio', 'Meowth',
-    'Persian', 'Psyduck', 'Golduck', 'Machop', 'Machoke', 'Machamp', 'Bellsprout',
-    'Weepinbell', 'Victreebel', 'Tentacool', 'Tentacruel', 'Geodude', 'Graveler',
-    'Golem', 'Ponyta', 'Rapidash', 'Slowpoke', 'Slowbro', 'Magnemite', 'Magneton',
-    'Krabby', 'Kingler', 'Exeggcute', 'Exeggutor', 'Cubone', 'Marowak', 'Hitmonlee',
-    'Hitmonchan', 'Lickitung', 'Lickilicky', 'Koffing', 'Weezing', 'Rhyhorn',
+    'Persian', 'Psyduck', 'Golduck','Mankey','Primeape','Growlite','Arcanine','Poliwag'
+    ,'Poliwhirl' ,'Poliwhath','Abra','Kadabra','Alakazam', 'Machop', 'Machoke',
+    'Machamp', 'Bellsprout', 'Weepinbell', 'Victreebel', 'Tentacool', 'Tentacruel',
+    'Geodude', 'Graveler', 'Golem', 'Ponyta', 'Rapidash', 'Slowpoke', 'Slowbro',
+    'Magnemite', 'Magneton','Farfechtd´d','Doduo','Dodrio','Seel','Dewgong',
+    'Grimer','Muk','Shellder','Cloyster','Gastly','Haunter', 'Gengar','Onix','Drowzee',
+    'Hypno', 'Krabby', 'Kingler','Voltorb','Electrode','Exeggcute', 'Exeggutor', 'Cubone',
+    'Marowak', 'Hitmonlee', 'Hitmonchan', 'Lickitung', 'Koffing', 'Weezing', 'Rhyhorn',
     'Rhydon', 'Chansey', 'Tangela', 'Kangaskhan', 'Horsea', 'Seadra', 'Goldeen',
-    'Seaking', 'Staryu', 'Starmie', 'Mr. Mime', 'Scyther', 'Electabuzz', 'Magmar',
+    'Seaking', 'Staryu', 'Starmie', 'Mr. Mime', 'Scyther','Jynx', 'Electabuzz', 'Magmar',
     'Pinsir', 'Tauros', 'Magikarp', 'Gyarados', 'Lapras', 'Ditto', 'Eevee',
     'Vaporeon', 'Jolteon', 'Flareon', 'Porygon', 'Omanyte', 'Omastar', 'Kabuto',
-    'Kabutops', 'Aerodactyl', 'Mewtwo', 'Mew'
+    'Kabutops', 'Aerodactyl','Snorlax','Articuno','Zapdos','Moltres'
+    ,'Dratini','Dragonair','Dragonite', 'Mewtwo', 'Mew',
+
+    //Johto Pokémon 152-251
   ];
 
 
   final List<String> _games = [
+    'Pokémon Red',
+    'Pokémon Blue',
+    'Pokémon Green',
+    'Pokémon Yellow',
+    'Pokémon Gold',
+    'Pokémon Silver',
+    'Pokémon Crystal',
+    'Pokémon Ruby',
+    'Pokémon Sapphire',
+    'Pokémon Emerald',
+    'Pokémon FireRed',
+    'Pokémon LeafGreen',
+    'Pokémon Diamond',
+    'Pokémon Pearl',
+    'Pokémon Platinum',
+    'Pokémon HeartGold',
+    'Pokémon SoulSilver',
+    'Pokémon Black',
+    'Pokémon White',
+    'Pokémon Black 2',
+    'Pokémon White 2',
+    'Pokémon X',
+    'Pokémon Y',
+    'Pokémon Omega Ruby',
+    'Pokémon Alpha Sapphire',
+    'Pokémon Sun',
+    'Pokémon Moon',
+    'Pokémon Ultra Sun',
+    'Pokémon Ultra Moon',
+    "Pokémon Let's Go Pikachu",
+    "Pokémon Let's Go Eevee",
     'Pokémon Sword',
     'Pokémon Shield',
+    'Pokémon Brilliant Diamond',
+    'Pokémon Shining Pearl',
+    'Pokémon Legends: Arceus',
     'Pokémon Scarlet',
     'Pokémon Violet',
-    'Pokémon Let\'s Go Pikachu',
+
     // Adicione mais jogos aqui
   ];
 
   final List<String> _methods = [
+    'Battle Method',
+    'Breeding',
+    'Catch Combo',
+    'Chain Fishing',
+    'DexNav',
+    'Dynamax Adventures',
+    'Event',
+    'Field Research',
+    'Fossil Restore',
+    'Friend Safari',
+    'Horde Hunting',
+    'Island Scan',
     'Masuda Method',
-    'Shiny Charm',
-    'Chain Hunting',
-    'SOS Battles',
+    'Mystery Gift',
+    'Outbreak Method',
+    'Poké Pelago',
+    'Pokéradar',
+    'Raid Battle',
     'Random Encounter',
+    'Run Away',
+    'SOS Calling',
+    'Soft Resetting',
+    'Tera Raid',
+    'Trade',
+    'Ultra Wormhole',
+    'Wonder Trade',
     // Adicione mais métodos de hunt aqui
   ];
 
