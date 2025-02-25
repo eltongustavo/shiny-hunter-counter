@@ -1,10 +1,10 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-import 'package:flutter/material.dart'; // Import necessário para os widgets do Flutter
+import 'pokemon.dart';
 
 class DatabaseHelper {
   static const _databaseName = 'shiny_counter.db';
-  static const _databaseVersion = 3; // Versão do banco de dados
+  static const _databaseVersion = 5; // Atualização da versão
 
   // Tabelas e colunas
   static const tablePokemon = 'pokemon';
@@ -13,11 +13,13 @@ class DatabaseHelper {
   static const columnSprite = 'sprite_url';
   static const columnGame = 'game';
   static const columnDate = 'capture_date';
-  static const columnResets = 'resets';
+  static const columnEncounters = 'encounters';
   static const columnMethod = 'method';  // Novo campo para 'method'
 
-  static const tableCounter = 'counter'; // Tabela para o contador
-  static const columnCount = 'count';
+  static const tableShinyHunts = 'shiny_hunts'; // Tabela para as hunts
+  static const columnHuntId = 'hunt_id'; // Identificador único da hunt
+  static const columnIndexPokemon = 'index_pokemon'; // Índice do Pokémon
+  static const columnHuntEncounters = 'encounters'; // Número de encontros
 
   // Banco de dados inicializado
   Database? _database;
@@ -25,8 +27,6 @@ class DatabaseHelper {
   // Abre o banco de dados
   Future<Database> get database async {
     if (_database != null) return _database!;
-
-    // Se o banco de dados não foi inicializado, cria o banco de dados
     _database = await _initDatabase();
     return _database!;
   }
@@ -34,21 +34,14 @@ class DatabaseHelper {
   // Criação do banco de dados
   Future<Database> _initDatabase() async {
     String path = join(await getDatabasesPath(), _databaseName);
-
-    // Inicializando o banco de dados
     return await openDatabase(path, version: _databaseVersion, onCreate: _onCreate);
   }
 
-  // Método para apagar e recriar o banco de dados
-  Future<void> dropAndRecreateDatabase() async {
-    final db = await database;
-
-    // Remove as tabelas existentes
-    await db.execute('DROP TABLE IF EXISTS $tablePokemon');
-    await db.execute('DROP TABLE IF EXISTS $tableCounter');
-
-    // Recria as tabelas
-    await _onCreate(db, _databaseVersion);
+  // Função para excluir e recriar o banco de dados
+  Future<void> deleteDatabaseAndRecreate() async {
+    final path = join(await getDatabasesPath(), _databaseName);
+    await deleteDatabase(path);  // Exclui o banco de dados
+    _database = await _initDatabase();  // Recria o banco de dados
   }
 
   // Criação das tabelas
@@ -57,55 +50,73 @@ class DatabaseHelper {
     await db.execute(''' 
       CREATE TABLE $tablePokemon (
         $columnId INTEGER PRIMARY KEY,
-        $columnName TEXT,
-        $columnSprite TEXT,
-        $columnGame TEXT,
-        $columnDate TEXT,
-        $columnResets INTEGER,
-        $columnMethod TEXT  // Adicionando coluna 'method'
+        $columnName TEXT NOT NULL,
+        $columnSprite TEXT NOT NULL,
+        $columnGame TEXT NOT NULL,
+        $columnDate TEXT NOT NULL,
+        $columnEncounters INTEGER NOT NULL,
+        $columnMethod TEXT NOT NULL
       )
     ''');
 
-    // Criar tabela de contador
+    // Criar tabela de Shiny Hunts
     await db.execute(''' 
-      CREATE TABLE $tableCounter (
-        id INTEGER PRIMARY KEY,
-        $columnCount INTEGER
+      CREATE TABLE $tableShinyHunts (
+        $columnHuntId INTEGER PRIMARY KEY AUTOINCREMENT,
+        $columnIndexPokemon INTEGER NOT NULL,
+        $columnHuntEncounters INTEGER NOT NULL
       )
     ''');
-
-    // Inserir valor inicial na tabela de contador
-    await db.insert(tableCounter, {columnCount: 0});
   }
 
-  Future<void> insertPokemon({
-    required String pokemonName,
-    required String spriteUrl,
-    required String game,
-    required String captureDate,
-    required int resets,
-    required String method,
-  }) async {
+  // Método para apagar e recriar o banco de dados
+  Future<void> dropAndRecreateDatabase() async {
+    final db = await database;
+
+    // Remove as tabelas existentes
+    await db.execute('DROP TABLE IF EXISTS $tablePokemon');
+    await db.execute('DROP TABLE IF EXISTS $tableShinyHunts');
+
+    // Recria as tabelas
+    await _onCreate(db, _databaseVersion);
+  }
+
+  // Função de inserir um novo Pokémon
+  Future<void> insertPokemon(Pokemon pokemon) async {
     final db = await database;
 
     // Verifica se algum campo está vazio ou inválido
-    if (pokemonName.isEmpty || spriteUrl.isEmpty || game.isEmpty || captureDate.isEmpty || method.isEmpty) {
+    if (pokemon.pokemonName.isEmpty ||
+        pokemon.spriteUrl.isEmpty ||
+        pokemon.game.isEmpty ||
+        pokemon.captureDate.isEmpty ||
+        pokemon.method.isEmpty) {
       print('Erro: um dos campos necessários está vazio.');
       return;
     }
 
-    // Inserir no banco de dados
-    await db.insert(
+    // Exibe os dados antes de tentar inserir para depuração
+    print('Inserindo Pokémon: ${pokemon.toMap()}');
+
+    try {
+      // Inserir no banco de dados
+      await db.insert(
+        tablePokemon,
+        pokemon.toMap(),  // Usando o método toMap() para passar os dados
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    } catch (e) {
+      print('Erro ao inserir Pokémon: $e');
+    }
+  }
+
+  // Função para deletar um Pokémon baseado no ID
+  Future<void> deletePokemon(int pokemonId) async {
+    final db = await database;
+    await db.delete(
       tablePokemon,
-      {
-        columnName: pokemonName,
-        columnSprite: spriteUrl,
-        columnGame: game,
-        columnDate: captureDate,
-        columnResets: resets,
-        columnMethod: method,  // Adicionando 'method' ao inserir Pokémon
-      },
-      conflictAlgorithm: ConflictAlgorithm.replace,
+      where: '$columnId = ?',
+      whereArgs: [pokemonId],
     );
   }
 
@@ -114,41 +125,17 @@ class DatabaseHelper {
     final db = await database;
     var result = await db.query(tablePokemon);
 
-    print('Pokémons no banco de dados: $result'); // Mostra todos os Pokémons com seus IDs
-
-    result = result.map((pokemon) {
+    return result.map((pokemon) {
       return {
         columnId: pokemon[columnId] ?? -1,  // Garantir que o id seja atribuído ou -1 em caso de erro
         columnName: pokemon[columnName] ?? 'Nome desconhecido',
         columnSprite: pokemon[columnSprite] ?? '',
         columnGame: pokemon[columnGame] ?? 'Jogo desconhecido',
         columnDate: pokemon[columnDate] ?? 'Data desconhecida',
-        columnResets: pokemon[columnResets] ?? 0,
+        columnEncounters: pokemon[columnEncounters] ?? 0,
         columnMethod: pokemon[columnMethod] ?? 'Método desconhecido',
       };
     }).toList();
-
-    return result;
-  }
-
-  // Carregar contador do banco de dados
-  Future<int> getCounter() async {
-    Database db = await database;
-    var result = await db.query(tableCounter, where: 'id = ?', whereArgs: [1]);
-
-    // Tratar caso o valor do contador seja nulo
-    return result.isNotEmpty ? (result.first[columnCount] ?? 0) as int : 0;
-  }
-
-  // Atualizar o contador no banco de dados
-  Future<void> updateCounter(int count) async {
-    Database db = await database;
-    await db.update(
-      tableCounter,
-      {columnCount: count},
-      where: 'id = ?',
-      whereArgs: [1],
-    );
   }
 
   // Função para obter um Pokémon específico pelo ID
@@ -167,67 +154,55 @@ class DatabaseHelper {
     }
   }
 
-  // Atualizar Pokémon no banco de dados
-  Future<int> updatePokemon(int id, String pokemonName, String spriteUrl, String game, String captureDate, int resets, String method) async {
-    Database db = await database;
-
-    // Tratar valores nulos antes de atualizar o banco
-    pokemonName = pokemonName.isNotEmpty ? pokemonName : 'Nome desconhecido';
-    spriteUrl = spriteUrl.isNotEmpty ? spriteUrl : '';
-    game = game.isNotEmpty ? game : 'Jogo desconhecido';
-    captureDate = captureDate.isNotEmpty ? captureDate : 'Data desconhecida';
-    method = method.isNotEmpty ? method : 'Método desconhecido'; // Garantir valor para 'method'
-
-    Map<String, dynamic> updatedPokemon = {
-      columnName: pokemonName,
-      columnSprite: spriteUrl,
-      columnGame: game,
-      columnDate: captureDate,
-      columnResets: resets,
-      columnMethod: method,  // Atualizando 'method'
-    };
-
-    return await db.update(
-      tablePokemon,
-      updatedPokemon,
-      where: '$columnId = ?',
-      whereArgs: [id],
-    );
-  }
-
-  // Método para deletar Pokémon do banco de dados
-  Future<void> deletePokemon(int pokemonId) async {
-    final db = await database;  // Certifique-se de ter a instância do banco de dados
-    await db.delete(
-      'pokemon',  // Nome da tabela
-      where: 'id = ?',  // Condição para encontrar o Pokémon
-      whereArgs: [pokemonId],  // Passa o ID do Pokémon
-    );
-  }
-
-  // Nova função para adicionar Pokémon com valores fixos
-  Future<void> insertNewPokemon(Map<String, dynamic> newPokemon) async {
+  // Função para inserir uma nova shiny hunt
+  Future<void> insertShinyHunt(int indexPokemon) async {
     final db = await database;
 
-    // Verifica se algum campo está vazio ou inválido
-    if (newPokemon['pokemon_name'].isEmpty || newPokemon['sprite_url'].isEmpty || newPokemon['game'].isEmpty || newPokemon['capture_date'].isEmpty || newPokemon['method'].isEmpty) {
-      print('Erro: um dos campos necessários está vazio.');
-      return;
-    }
-
-    // Inserir no banco de dados
+    // Insere uma nova hunt com um número inicial de encontros (0)
     await db.insert(
-      tablePokemon,
+      tableShinyHunts,
       {
-        columnName: newPokemon['pokemon_name'],
-        columnSprite: newPokemon['sprite_url'],
-        columnGame: newPokemon['game'],
-        columnDate: newPokemon['capture_date'],
-        columnResets: newPokemon['resets'],
-        columnMethod: newPokemon['method'],
+        columnIndexPokemon: indexPokemon,
+        columnHuntEncounters: 0, // Inicia com 0 encontros
       },
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
 
+  // Função para obter todas as hunts em andamento
+  Future<List<Map<String, dynamic>>> getAllShinyHunts() async {
+    final db = await database;
+    var result = await db.query(tableShinyHunts);
+
+    return result.map((hunt) {
+      return {
+        columnHuntId: hunt[columnHuntId],
+        columnIndexPokemon: hunt[columnIndexPokemon],
+        columnEncounters: hunt[columnHuntEncounters],
+      };
+    }).toList();
+  }
+
+  // Função para atualizar o número de encontros de uma hunt
+  Future<void> updateEncounters(int huntId, int encounters) async {
+    final db = await database;
+
+    // Atualiza o número de encontros para a hunt com o hunt_id fornecido
+    await db.update(
+      tableShinyHunts,
+      {columnHuntEncounters: encounters},
+      where: '$columnHuntId = ?',
+      whereArgs: [huntId],
+    );
+  }
+
+  // Função para deletar uma hunt
+  Future<void> deleteShinyHunt(int huntId) async {
+    final db = await database;
+    await db.delete(
+      tableShinyHunts,
+      where: '$columnHuntId = ?',
+      whereArgs: [huntId],
+    );
+  }
 }

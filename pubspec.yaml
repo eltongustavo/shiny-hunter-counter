@@ -35,7 +35,7 @@ dependencies:
   path_provider: ^2.0.11  # Para localizar o diretório do banco
   cached_network_image: ^3.2.0 # Para carregar sprites de Pokémon
   intl: ^0.18.0
-
+  http: ^1.3.0  # Ou versão mais recente
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -57,6 +57,9 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
+
+  assets:
+    - assets/no-internet.png
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

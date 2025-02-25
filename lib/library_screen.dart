@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shiny_counter/database_helper.dart';
 import 'package:intl/intl.dart';
+import 'pokemon.dart';
 
 class LibraryScreen extends StatefulWidget {
   const LibraryScreen({Key? key}) : super(key: key);
@@ -20,7 +21,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
 
   // Função para carregar a lista de Pokémon do banco de dados
   Future<List<Map<String, dynamic>>> _loadPokemonList() async {
-    return await DatabaseHelper().getAllPokemon();
+    return await DatabaseHelper().getAllPokemon(); // Carrega a lista de Pokémon do banco de dados
   }
 
   // Função para atualizar a lista de Pokémon
@@ -48,7 +49,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
             TextButton(
               child: const Text('Excluir'),
               onPressed: () async {
-                await DatabaseHelper().deletePokemon(id);
+                await DatabaseHelper().deletePokemon(id); // Exclui o Pokémon
                 _updatePokemonList(); // Atualiza a lista após a exclusão
                 Navigator.of(context).pop(); // Fecha o diálogo
               },
@@ -85,12 +86,27 @@ class _LibraryScreenState extends State<LibraryScreen> {
                     children: [
                       Text('Jogo: ${pokemon['game'] ?? 'Desconhecido'}'),
                       Text('Data de captura: ${pokemon['capture_date'] ?? 'Desconhecida'}'),
-                      Text('Encontros: ${pokemon['resets'] ?? 0}'),
+                      Text('Encontros: ${pokemon['encounters'] ?? 0}'),
                       Text('Método: ${pokemon['method'] ?? 'Desconhecido'}'),
                     ],
                   ),
                   leading: pokemon['sprite_url'] != null && pokemon['sprite_url']!.isNotEmpty
-                      ? Image.network(pokemon['sprite_url'])
+                      ? Image.network(
+                    pokemon['sprite_url']!,
+                    width: 100,  // Ajuste o tamanho conforme necessário
+                    height: 100,
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) {
+                        return child;  // Imagem carregada com sucesso
+                      } else {
+                        return const CircularProgressIndicator();  // Enquanto a imagem carrega
+                      }
+                    },
+                    errorBuilder: (context, error, stackTrace) {
+                      // Se falhar ao carregar, exibe a imagem padrão de assets
+                      return Image.asset('assets/no-internet.png', width: 100, height: 100);
+                    },
+                  )
                       : const Icon(Icons.image_not_supported),
                   trailing: IconButton(
                     icon: const Icon(Icons.delete),
@@ -136,7 +152,7 @@ class AddPokemonScreen extends StatefulWidget {
 
 class _AddPokemonScreenState extends State<AddPokemonScreen> {
   final TextEditingController _captureDateController = TextEditingController();
-  final TextEditingController _resetsController = TextEditingController();
+  final TextEditingController _encountersController = TextEditingController();
 
   // Listas para os dropdowns (com alguns exemplos)
   List<String> _pokemonList = [
@@ -162,7 +178,6 @@ class _AddPokemonScreenState extends State<AddPokemonScreen> {
     'Vaporeon', 'Jolteon', 'Flareon', 'Porygon', 'Omanyte', 'Omastar', 'Kabuto',
     'Kabutops', 'Aerodactyl','Snorlax','Articuno','Zapdos','Moltres'
     ,'Dratini','Dragonair','Dragonite', 'Mewtwo', 'Mew',
-    // Johto Pokémon 152-251
   ];
 
   List<String> _gameList = [
@@ -173,74 +188,10 @@ class _AddPokemonScreenState extends State<AddPokemonScreen> {
     'Pokémon White 2', 'Pokémon X', 'Pokémon Y', 'Pokémon Omega Ruby', 'Pokémon Alpha Sapphire',
     'Pokémon Sun', 'Pokémon Moon', 'Pokémon Ultra Sun', 'Pokémon Ultra Moon', "Pokémon Let's Go Pikachu",
     "Pokémon Let's Go Eevee", 'Pokémon Sword', 'Pokémon Shield', 'Pokémon Brilliant Diamond',
-    'Pokémon Shining Pearl', 'Pokémon Legends: Arceus', 'Pokémon Scarlet', 'Pokémon Violet',
-    // Adicione mais jogos aqui
+    'Pokémon Shining Pearl', 'Pokémon Scarlet', 'Pokémon Violet',
   ];
 
-  List<String> _methodList = [
-    'Battle Method', 'Breeding', 'Catch Combo', 'Chain Fishing', 'DexNav', 'Dynamax Adventures',
-    'Event', 'Field Research', 'Fossil Restore', 'Friend Safari', 'Horde Hunting', 'Island Scan',
-    'Masuda Method', 'Mystery Gift', 'Outbreak Method', 'Poké Pelago', 'Pokéradar', 'Raid Battle',
-    'Random Encounter', 'Run Away', 'SOS Calling', 'Soft Resetting', 'Tera Raid', 'Trade',
-    'Ultra Wormhole', 'Wonder Trade',
-    // Adicione mais métodos de hunt aqui
-  ];
-
-  String? _selectedPokemon;
-  String? _selectedGame;
-  String? _selectedMethod;
-
-  void _savePokemon() async {
-    if (_selectedPokemon == null || _selectedGame == null || _selectedMethod == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Por favor, preencha todos os campos!')),
-      );
-      return;
-    }
-
-    // Validação da Data de Captura
-    String captureDate = _captureDateController.text;
-    try {
-      DateFormat("dd/MM/yyyy").parseStrict(captureDate);
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Por favor, insira uma data válida no formato dd/MM/yyyy!')),
-      );
-      return;
-    }
-
-    // Obtém o índice do Pokémon na lista
-    int spriteIndex = _pokemonList.indexOf(_selectedPokemon!);
-    String spriteUrl = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/$spriteIndex.png';  // Modifique a base da URL conforme necessário
-
-    // Verifica se o campo de encontros está vazio ou contém um valor inválido
-    print("Valor de Encontros: ${_resetsController.text}");
-
-    int resets = _resetsController.text.isNotEmpty
-        ? int.tryParse(_resetsController.text) ?? 0
-        : 0;
-
-    // Aqui, o valor de resets agora é um inteiro, e será o valor exato preenchido no campo
-    print("Valor de Encontros (resets): $resets");
-
-    final newPokemon = {
-      'pokemon_name': _selectedPokemon!,
-      'game': _selectedGame!,
-      'capture_date': captureDate,
-      'resets': resets,  // O valor de resets já foi transformado em inteiro
-      'method': _selectedMethod!,
-      'sprite_url': spriteUrl,  // Usa a URL gerada automaticamente
-    };
-
-    // Adiciona o Pokémon ao banco de dados
-    await DatabaseHelper().insertNewPokemon(newPokemon);
-
-    // Atualiza a lista na tela anterior
-    widget.updatePokemonList();
-
-    // Volta para a tela anterior
-    Navigator.pop(context);
-  }
+  List<String> _methodList = ['Shiny Charm', 'Masuda Method', 'SOS Method', 'Random Encounter'];
 
   @override
   Widget build(BuildContext context) {
@@ -248,74 +199,112 @@ class _AddPokemonScreenState extends State<AddPokemonScreen> {
       appBar: AppBar(title: const Text('Adicionar Novo Pokémon')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            // Dropdown para selecionar Pokémon
-            DropdownButton<String>(
-              hint: const Text('Escolha o Pokémon'),
-              value: _selectedPokemon,
-              onChanged: (String? newValue) {
-                setState(() {
-                  _selectedPokemon = newValue;
-                });
-              },
-              items: _pokemonList.map<DropdownMenuItem<String>>((String pokemon) {
-                return DropdownMenuItem<String>(
-                  value: pokemon,
-                  child: Text(pokemon),
-                );
-              }).toList(),
-            ),
-            // Dropdown para selecionar o jogo
-            DropdownButton<String>(
-              hint: const Text('Escolha o Jogo'),
-              value: _selectedGame,
-              onChanged: (String? newValue) {
-                setState(() {
-                  _selectedGame = newValue;
-                });
-              },
-              items: _gameList.map<DropdownMenuItem<String>>((String game) {
-                return DropdownMenuItem<String>(
-                  value: game,
-                  child: Text(game),
-                );
-              }).toList(),
-            ),
-            // Dropdown para selecionar o método
-            DropdownButton<String>(
-              hint: const Text('Escolha o Método'),
-              value: _selectedMethod,
-              onChanged: (String? newValue) {
-                setState(() {
-                  _selectedMethod = newValue;
-                });
-              },
-              items: _methodList.map<DropdownMenuItem<String>>((String method) {
-                return DropdownMenuItem<String>(
-                  value: method,
-                  child: Text(method),
-                );
-              }).toList(),
-            ),
-            TextField(
-              controller: _captureDateController,
-              decoration: const InputDecoration(labelText: 'Data de Captura'),
-            ),
-            TextField(
-              controller: _resetsController,
-              decoration: const InputDecoration(labelText: 'Resets'),
-              keyboardType: TextInputType.number,
-            ),
-            // O campo de sprite_url será preenchido automaticamente
-            // Não é necessário exibir para o usuário
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _savePokemon,  // Salva o Pokémon no banco de dados
-              child: const Text('Salvar Pokémon'),
-            ),
-          ],
+        child: Form(
+          child: Column(
+            children: <Widget>[
+              DropdownButtonFormField<String>(
+                decoration: const InputDecoration(labelText: 'Pokémon'),
+                items: _pokemonList.map((String pokemon) {
+                  return DropdownMenuItem<String>(
+                    value: pokemon,
+                    child: Text(pokemon),
+                  );
+                }).toList(),
+                onChanged: (value) {},
+              ),
+              DropdownButtonFormField<String>(
+                decoration: const InputDecoration(labelText: 'Jogo'),
+                items: _gameList.map((String game) {
+                  return DropdownMenuItem<String>(
+                    value: game,
+                    child: Text(game),
+                  );
+                }).toList(),
+                onChanged: (value) {},
+              ),
+              TextFormField(
+                controller: _captureDateController,
+                decoration: const InputDecoration(labelText: 'Data de Captura'),
+                onTap: () async {
+                  final DateTime? picked = await showDatePicker(
+                    context: context,
+                    initialDate: DateTime.now(),
+                    firstDate: DateTime(2000),
+                    lastDate: DateTime(2101),
+                  );
+                  if (picked != null && picked != DateTime.now()) {
+                    setState(() {
+                      _captureDateController.text = DateFormat('yyyy-MM-dd').format(picked);
+                    });
+                  }
+                },
+              ),
+              TextFormField(
+                controller: _encountersController,
+                decoration: const InputDecoration(labelText: 'Encontros'),
+                keyboardType: TextInputType.number,
+              ),
+              DropdownButtonFormField<String>(
+                decoration: const InputDecoration(labelText: 'Método'),
+                items: _methodList.map((String method) {
+                  return DropdownMenuItem<String>(
+                    value: method,
+                    child: Text(method),
+                  );
+                }).toList(),
+                onChanged: (value) {},
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  // Verifique o nome do Pokémon de maneira correta, assumindo que você queira pegar o primeiro Pokémon da lista
+                  final pokemonName = _pokemonList.isNotEmpty ? _pokemonList.first : ''; // Evitar erro caso a lista esteja vazia
+                  final game = _gameList.isNotEmpty ? _gameList.first : ''; // Evitar erro caso a lista esteja vazia
+                  final captureDate = _captureDateController.text;
+                  final method = _methodList.isNotEmpty ? _methodList.first : ''; // Evitar erro caso a lista esteja vazia
+                  int encounters = 0;
+
+                  // Verificar se a conversão para inteiro foi bem-sucedida
+                  try {
+                    encounters = int.parse(_encountersController.text);
+                  } catch (e) {
+                    print('Erro ao converter o número de encontros: $e');
+                    return; // Retorna caso o valor seja inválido
+                  }
+
+                  // Gerando o índice do Pokémon com base na lista de nomes
+                  final pokemonIndex = _pokemonList.indexOf(pokemonName.toLowerCase()) + 1; // +1 para corresponder ao índice na URL
+                  if (pokemonIndex == 0) {
+                    // Caso o Pokémon não seja encontrado na lista, use um índice de fallback
+                    print('Pokémon não encontrado na lista');
+                    return;
+                  }
+
+                  // Criando a URL do sprite com base no índice
+                  final spriteUrl = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/$pokemonIndex.png';
+
+                  // Criando o objeto para o novo Pokémon com base nos dados
+                  final newPokemon = Pokemon(
+                    pokemonName: pokemonName,
+                    spriteUrl: spriteUrl,
+                    game: game,
+                    captureDate: captureDate,
+                    encounters: encounters,
+                    method: method,
+                  );
+
+                  // Inserindo o Pokémon no banco de dados
+                  await DatabaseHelper().insertPokemon(newPokemon);
+                  widget.updatePokemonList(); // Atualiza a lista no widget principal
+                  Navigator.pop(context);
+                },
+                child: const Text('Adicionar'),
+              )
+
+
+
+
+            ],
+          ),
         ),
       ),
     );

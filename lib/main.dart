@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'counter_screen.dart';
+import 'shiny_hunt_counter_screen.dart';
 import 'library_screen.dart';
-
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,16 +36,26 @@ class HomeScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0), // Aumenta o botão
+                textStyle: const TextStyle(fontSize: 20), // Aumenta o tamanho do texto
+              ),
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const CounterScreen()),
+                  MaterialPageRoute(builder: (context) => ShinyHuntCounterScreen()),
                 );
               },
               child: const Text('Iniciar Shiny Hunt'),
             ),
+
             const SizedBox(height: 20),
+
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0), // Aumenta o botão
+                textStyle: const TextStyle(fontSize: 20), // Aumenta o tamanho do texto
+              ),
               onPressed: () {
                 Navigator.push(
                   context,
