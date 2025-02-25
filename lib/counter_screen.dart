@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'database_helper.dart';
+import 'package:intl/intl.dart';
 
 class CounterScreen extends StatefulWidget {
   const CounterScreen({super.key});
@@ -11,13 +12,11 @@ class CounterScreen extends StatefulWidget {
 class _CounterScreenState extends State<CounterScreen> {
   int _count = 0;
   final DatabaseHelper _databaseHelper = DatabaseHelper();
-
-  String _selectedPokemon = 'Bulbasaur'; // Pokémon padrão
-  String _pokemonSprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/1.png"; //bulbasaur
-  String _selectedGame = 'Pokémon Sword'; // Jogo padrão
-  String _selectedMethod = 'Random Encounter'; // Método padrão
-
-
+  String _selectedPokemon = 'Bulbasaur';
+  String _pokemonSprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/1.png";
+  String _selectedGame = 'Pokémon Sword';
+  String _selectedMethod = 'Random Encounter';
+  String _captureDate = DateFormat('dd/MM/yyyy').format(DateTime.now());
 
   final List<String> _pokemons = [
 
@@ -128,41 +127,45 @@ class _CounterScreenState extends State<CounterScreen> {
     _loadCounter();
   }
 
-  // Carregar o contador do banco de dados
   void _loadCounter() async {
     _count = await _databaseHelper.getCounter();
     setState(() {});
   }
 
-  // Incrementar contador
+  void _resetCounter() async {
+    setState(() {
+      _count = 0;
+    });
+    await _databaseHelper.updateCounter(_count);  // Atualiza o contador no banco de dados
+  }
+
   void _increment() async {
     setState(() {
       _count++;
     });
-    await _databaseHelper.updateCounter(_count); // Salvar no banco
+    await _databaseHelper.updateCounter(_count);
   }
 
-  // Decrementar contador
   void _decrement() async {
     if (_count > 0) {
       setState(() {
         _count--;
       });
-      await _databaseHelper.updateCounter(_count); // Salvar no banco
+      await _databaseHelper.updateCounter(_count);
     }
   }
 
-  // Atualizar o Pokémon escolhido e seu sprite
   void _onPokemonChanged(String? pokemon) {
     setState(() {
       _selectedPokemon = pokemon ?? 'Bulbasaur';
-      // Corrigindo a URL para pegar a imagem shiny
+      // Zera o contador após adicionar o Pokémon
+      _resetCounter();
       _pokemonSprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${_pokemons.indexOf(_selectedPokemon) + 1}.png";
     });
   }
 
-  // Função para exibir a tela de adicionar à biblioteca
-  void _addToLibrary() {
+  void _addToLibrary() async {
+    // Exibe um diálogo para confirmar o que está sendo adicionado
     showDialog(
       context: context,
       builder: (context) {
@@ -173,7 +176,6 @@ class _CounterScreenState extends State<CounterScreen> {
               return Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Centralizando nome e sprite do Pokémon
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -190,16 +192,11 @@ class _CounterScreenState extends State<CounterScreen> {
                     ],
                   ),
                   const SizedBox(height: 20),
-
-                  // Exibindo a quantidade de resets
                   Text(
                     'Encontros: $_count',
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
-
                   const SizedBox(height: 20),
-
-                  // Dropdown para selecionar o jogo
                   DropdownButton<String>(
                     value: _selectedGame,
                     onChanged: (String? newValue) {
@@ -214,10 +211,7 @@ class _CounterScreenState extends State<CounterScreen> {
                       );
                     }).toList(),
                   ),
-
                   const SizedBox(height: 20),
-
-                  // Dropdown para selecionar o método de hunt
                   DropdownButton<String>(
                     value: _selectedMethod,
                     onChanged: (String? newValue) {
@@ -232,19 +226,62 @@ class _CounterScreenState extends State<CounterScreen> {
                       );
                     }).toList(),
                   ),
+                  const SizedBox(height: 20),
+                  Text(
+                    'Shiny encontrado em:',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 14),
+                  ),
+                  const SizedBox(height: 5),
+                  Text(
+                    _captureDate,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 16),
+                    textAlign: TextAlign.center,
+                  ),
                 ],
               );
             },
           ),
           actions: [
-            Center( // Centralizando o botão
+            Center(
               child: ElevatedButton(
-                onPressed: () {
-                  // Aqui você pode adicionar a lógica para salvar na biblioteca
+                onPressed: () async {
+                  // Verifica se todos os campos estão preenchidos
+                  if (_selectedPokemon.isEmpty || _selectedGame.isEmpty || _captureDate.isEmpty || _selectedMethod.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Por favor, preencha todos os campos.')),
+                    );
+                    Navigator.pop(context);
+                    return;
+                  }
+
+                  // Log para depuração
+                  print('Adicionando Pokémon à biblioteca...');
+                  print('Pokémon: $_selectedPokemon');
+                  print('Jogo: $_selectedGame');
+                  print('Método: $_selectedMethod');
+                  print('Data: $_captureDate');
+                  print('Encontros: $_count');
+
+                  // Inserir o Pokémon no banco de dados
+                  await _databaseHelper.insertPokemon(
+                    pokemonName: _selectedPokemon,
+                    spriteUrl: _pokemonSprite,
+                    game: _selectedGame,
+                    captureDate: _captureDate,
+                    resets: _count,
+                    method: _selectedMethod,  // Método de encontro
+                  );
+
+                  // Zera o contador após adicionar o Pokémon
+                  _resetCounter();
+
+                  // Exibe uma mensagem confirmando a adição
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Pokémon adicionado à biblioteca!')),
                   );
-                  Navigator.pop(context); // Fechar a tela
+
+                  // Fecha o diálogo
+                  Navigator.pop(context);
                 },
                 child: const Text("Adicionar"),
               ),
@@ -255,6 +292,7 @@ class _CounterScreenState extends State<CounterScreen> {
     );
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -264,7 +302,6 @@ class _CounterScreenState extends State<CounterScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Dropdown para selecionar o Pokémon
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -286,16 +323,10 @@ class _CounterScreenState extends State<CounterScreen> {
                 ),
               ],
             ),
-
             const SizedBox(height: 40),
-
-            // Contador de encontros
             Text('Encontros:', style: Theme.of(context).textTheme.titleLarge),
-            Text('$_count', style: Theme.of(context).textTheme.displayLarge?.copyWith(fontSize: 60)), // Tamanho maior do contador
-
+            Text('$_count', style: Theme.of(context).textTheme.displayLarge?.copyWith(fontSize: 60)),
             const SizedBox(height: 40),
-
-            // Botões de incremento e decremento
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -311,10 +342,7 @@ class _CounterScreenState extends State<CounterScreen> {
                 ),
               ],
             ),
-
             const SizedBox(height: 40),
-
-            // Botão de adicionar à biblioteca, agora centralizado
             ElevatedButton(
               onPressed: _addToLibrary,
               child: const Text("Adicionar à Biblioteca"),

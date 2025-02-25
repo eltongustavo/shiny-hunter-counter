@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'counter_screen.dart';
 import 'library_screen.dart';
 
-void main() {
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
   runApp(const ShinyCounterApp());
 }
 
