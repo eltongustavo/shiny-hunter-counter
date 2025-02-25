@@ -67,6 +67,7 @@ class DatabaseHelper {
         $columnHuntEncounters INTEGER NOT NULL
       )
     ''');
+
   }
 
   // Método para apagar e recriar o banco de dados
@@ -162,7 +163,7 @@ class DatabaseHelper {
     await db.insert(
       tableShinyHunts,
       {
-        columnIndexPokemon: indexPokemon,
+        columnIndexPokemon: indexPokemon, // Armazena o índice do Pokémon
         columnHuntEncounters: 0, // Inicia com 0 encontros
       },
       conflictAlgorithm: ConflictAlgorithm.replace,
@@ -177,24 +178,26 @@ class DatabaseHelper {
     return result.map((hunt) {
       return {
         columnHuntId: hunt[columnHuntId],
-        columnIndexPokemon: hunt[columnIndexPokemon],
+        columnIndexPokemon: hunt[columnIndexPokemon], // Garantir que estamos pegando o índice do Pokémon
         columnEncounters: hunt[columnHuntEncounters],
       };
     }).toList();
   }
 
-  // Função para atualizar o número de encontros de uma hunt
-  Future<void> updateEncounters(int huntId, int encounters) async {
+  Future<void> updateShinyHunt(int huntId, int encounters, int pokemonIndex) async {
     final db = await database;
 
-    // Atualiza o número de encontros para a hunt com o hunt_id fornecido
     await db.update(
-      tableShinyHunts,
-      {columnHuntEncounters: encounters},
-      where: '$columnHuntId = ?',
+      'shiny_hunts',
+      {
+        'encounters': encounters,  // Atualizando os encontros
+        'index_pokemon': pokemonIndex,  // Atualizando o índice do Pokémon
+      },
+      where: 'hunt_id = ?',
       whereArgs: [huntId],
     );
   }
+
 
   // Função para deletar uma hunt
   Future<void> deleteShinyHunt(int huntId) async {

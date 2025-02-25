@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'shiny_hunt_counter_screen.dart';
 import 'library_screen.dart';
+import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
