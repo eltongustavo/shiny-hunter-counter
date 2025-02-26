@@ -34,7 +34,7 @@ class _SaveToLibraryScreenState extends State<SaveToLibraryScreen> {
 
     String pokemonName = pokemonsList[widget.pokemonIndex - 1];
     return Scaffold(
-      appBar: AppBar(title: Text("Salvar na Biblioteca")),
+      appBar: AppBar(title: Text(" Salvar Hunt na Biblioteca")),
       backgroundColor: Colors.black,
       body: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -146,7 +146,11 @@ class _SaveToLibraryScreenState extends State<SaveToLibraryScreen> {
                 }
               },
               child: Text("Salvar na Biblioteca"),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                foregroundColor: Colors.white,
+                minimumSize: Size(double.infinity, 50),
+              ) // Botão grande e ocupando toda a largura),
             ),
           ],
         ),

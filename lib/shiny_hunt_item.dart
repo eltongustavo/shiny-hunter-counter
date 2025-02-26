@@ -116,7 +116,7 @@ class ShinyHuntItem extends StatelessWidget {
                       ),
                     );
                   },
-                  child: Text('Salvar na Biblioteca'),
+                  child: Text('Salvar Hunt'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
                     foregroundColor: Colors.white,

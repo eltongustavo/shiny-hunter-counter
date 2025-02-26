@@ -39,6 +39,7 @@ class HomeScreen extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0), // Aumenta o botão
                 textStyle: const TextStyle(fontSize: 20), // Aumenta o tamanho do texto
+                foregroundColor: Colors.white,
               ),
               onPressed: () {
                 Navigator.push(
@@ -55,6 +56,7 @@ class HomeScreen extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0), // Aumenta o botão
                 textStyle: const TextStyle(fontSize: 20), // Aumenta o tamanho do texto
+                foregroundColor: Colors.white,
               ),
               onPressed: () {
                 Navigator.push(
