@@ -1,16 +1,52 @@
-# shiny_counter
 
-A new Flutter project.
+# Shiny Hunt Counter
 
-## Getting Started
+## Descrição
 
-This project is a starting point for a Flutter application.
+O Shiny Hunt Counter é um aplicativo para rastrear e gerenciar a contagem de encontros em caçadas de Pokémon Shiny. Ele também funciona como uma biblioteca de Shinies capturados, permitindo que os usuários registrem e visualizem os Pokémon que foram capturados durante suas aventuras.
 
-A few resources to get you started if this is your first Flutter project:
+O app foi desenvolvido para dispositivos Android com um design minimalista inspirado na Pokédex, mas com cores um pouco mais escuras e um estilo de terminal preto. O aplicativo possui funcionalidade offline para as funções principais.
+## Funcionalidades
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- **Contador de Encontros:** Registra o número de encontros feitos em cada hunt.
+- **Biblioteca de Shinies:** Exibe todos os Shinies capturados pelo usuário, com sprites de Pokémon e informações associadas.
+- **Offline:** Funciona de maneira totalmente offline para o gerenciamento dos encontros e a visualização da biblioteca.
+- **Design Minimalista:** Inspirado na Pokédex, com um tema escuro estilo terminal.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Obtendo o Aplicativo
+- **Download:** As versões do aplicativo serão disponibilizadas no Release do repositório.
+
+## Tecnologias Utilizadas
+
+- **Flutter**: Framework de desenvolvimento para o aplicativo mobile.
+- **SQLite**: Banco de dados local para persistência dos dados de hunts e biblioteca de Shinies.
+- **Dart**: Linguagem de programação utilizada para o desenvolvimento do app.
+
+## Estrutura do Projeto
+
+O projeto é composto pelas seguintes principais funcionalidades:
+
+- **Banco de Dados (SQLite):**
+  - Tabela de *Shiny Hunts* para registrar as caçadas, com ID do Pokémon, número de encontros e índice do Pokémon capturado.
+  - Funções para inserir, atualizar e recuperar dados das hunts.
+  
+- **Interface de Usuário (UI):**
+  - Tela inicial com a lista de hunts em andamento.
+  - Tela de biblioteca para visualizar os Shinies capturados.
+  - Formulário de adição de novos Pokémon e novas hunts.
+  
+- **Persistência de Dados:**
+  - Utiliza SQLite para manter os dados de hunts e Shinies de maneira persistente, mesmo após o fechamento do aplicativo.
+
+## Contribuindo
+
+Contribuições são bem-vindas! Se você tem uma melhoria ou correção de bug, siga as etapas abaixo para contribuir:
+
+1. Fork o repositório.
+2. Crie uma nova branch para sua feature ou correção.
+3. Faça suas mudanças e adicione testes se necessário.
+4. Envie um pull request com a descrição das mudanças.
+
+## Licença
+
+Este projeto está licenciado sob a [Licença MIT](LICENSE).
