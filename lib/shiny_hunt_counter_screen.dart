@@ -42,7 +42,6 @@ class _ShinyHuntCounterScreenState extends State<ShinyHuntCounterScreen> {
     _loadHunts();
   }
 
-
   void _updateHunt(int huntId, int encounters, int pokemonIndex) async {
     final dbHelper = DatabaseHelper();
     await dbHelper.updateShinyHunt(huntId, encounters, pokemonIndex);
