@@ -36,16 +36,12 @@ class _ShinyHuntCounterScreenState extends State<ShinyHuntCounterScreen> {
     });
   }
 
-  void _createNewHunt() async {
+  Future<void> _createNewHunt() async {
     final dbHelper = DatabaseHelper();
-    int newHuntId = _huntIds.isEmpty ? 1 : (_huntIds.last + 1);
-    await dbHelper.insertShinyHunt(newHuntId);
-    setState(() {
-      _huntIds.add(newHuntId);
-      _huntEncounters[newHuntId] = 0;
-      _huntPokemons[newHuntId] = 1; // Inicializando com o Pokémon de índice 1
-    });
+    await dbHelper.insertShinyHunt(1); // Inserir com índice fixo (pode ser alterado)
+    _loadHunts();
   }
+
 
   void _updateHunt(int huntId, int encounters, int pokemonIndex) async {
     final dbHelper = DatabaseHelper();
