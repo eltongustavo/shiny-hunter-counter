@@ -1,16 +1,5 @@
-# shiny_counter
+Shiny Hunt Counter and Library App
+Descrição
+O Shiny Hunt Counter é um aplicativo para rastrear e gerenciar a contagem de encontros em caçadas de Pokémon Shiny. Ele também funciona como uma biblioteca de Shinies capturados, permitindo que os usuários registrem e visualizem os Pokémon que foram capturados durante suas aventuras.
 
-A new Flutter project.
-
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+O app foi desenvolvido para dispositivos Android com um design minimalista inspirado na Pokédex, mas com cores um pouco mais escuras e um estilo de terminal preto. O aplicativo possui funcionalidade offline para as funções principais.
