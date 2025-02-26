@@ -1,5 +1,5 @@
 
-# Shiny Hunt Counter and Library App
+# Shiny Hunt Counter
 
 ## Descrição
 
