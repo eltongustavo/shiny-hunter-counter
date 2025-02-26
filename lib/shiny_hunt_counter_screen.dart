@@ -89,12 +89,17 @@ class _ShinyHuntCounterScreenState extends State<ShinyHuntCounterScreen> {
               itemCount: _huntIds.length,
               itemBuilder: (context, index) {
                 final huntId = _huntIds[index];
-                return ShinyHuntItem(
-                  huntId: huntId,
-                  encounters: _huntEncounters[huntId] ?? 0,
-                  pokemonIndex: _huntPokemons[huntId] ?? 1,
-                  onUpdateHunt: _updateHunt,
-                  onDeleteHunt: () => _deleteHunt(huntId),
+                return Center( // Centraliza o item na tela
+                  child: SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.8, // Define a largura máxima de 70%
+                    child: ShinyHuntItem(
+                      huntId: huntId,
+                      encounters: _huntEncounters[huntId] ?? 0,
+                      pokemonIndex: _huntPokemons[huntId] ?? 1,
+                      onUpdateHunt: _updateHunt,
+                      onDeleteHunt: () => _deleteHunt(huntId),
+                    ),
+                  ),
                 );
               },
             ),
