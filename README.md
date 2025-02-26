@@ -13,6 +13,9 @@ O app foi desenvolvido para dispositivos Android com um design minimalista inspi
 - **Offline:** Funciona de maneira totalmente offline para o gerenciamento dos encontros e a visualização da biblioteca.
 - **Design Minimalista:** Inspirado na Pokédex, com um tema escuro estilo terminal.
 
+## Obtendo o Aplicativo
+- **Download:** As versões do aplicativo serão disponibilizadas no Release do repositório.
+
 ## Tecnologias Utilizadas
 
 - **Flutter**: Framework de desenvolvimento para o aplicativo mobile.
