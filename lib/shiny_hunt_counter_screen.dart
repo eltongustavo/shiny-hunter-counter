@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'database_helper.dart';
-import 'shiny_hunt_item.dart';
+import 'package:shiny_counter/database_helper.dart';
+import 'package:shiny_counter/shiny_hunt_item.dart';
+import 'save_to_library_screen.dart'; // Importar a tela de salvar na biblioteca
 
 class ShinyHuntCounterScreen extends StatefulWidget {
   @override
@@ -10,7 +11,7 @@ class ShinyHuntCounterScreen extends StatefulWidget {
 class _ShinyHuntCounterScreenState extends State<ShinyHuntCounterScreen> {
   List<int> _huntIds = [];
   Map<int, int> _huntEncounters = {};
-  Map<int, int> _huntPokemons = {};
+  Map<int, int?> _huntPokemons = {}; // Ajuste para permitir valores nulos
   bool _isLoading = true;
 
   @override
@@ -29,7 +30,7 @@ class _ShinyHuntCounterScreenState extends State<ShinyHuntCounterScreen> {
         for (var hunt in hunts) hunt['hunt_id'] as int: hunt['encounters'] as int
       };
       _huntPokemons = {
-        for (var hunt in hunts) hunt['hunt_id'] as int: hunt['index_pokemon'] as int
+        for (var hunt in hunts) hunt['hunt_id'] as int: hunt['index_pokemon'] as int?
       };
       _isLoading = false;
     });
@@ -42,7 +43,7 @@ class _ShinyHuntCounterScreenState extends State<ShinyHuntCounterScreen> {
     setState(() {
       _huntIds.add(newHuntId);
       _huntEncounters[newHuntId] = 0;
-      _huntPokemons[newHuntId] = 1;
+      _huntPokemons[newHuntId] = 1; // Inicializando com o Pokémon de índice 1
     });
   }
 
@@ -63,6 +64,11 @@ class _ShinyHuntCounterScreenState extends State<ShinyHuntCounterScreen> {
       _huntEncounters.remove(huntId);
       _huntPokemons.remove(huntId);
     });
+  }
+
+  // Função para atualizar o estado quando a hunt for salva
+  void _onHuntSaved() {
+    _loadHunts(); // Recarregar a lista de hunts
   }
 
   @override
@@ -89,15 +95,16 @@ class _ShinyHuntCounterScreenState extends State<ShinyHuntCounterScreen> {
               itemCount: _huntIds.length,
               itemBuilder: (context, index) {
                 final huntId = _huntIds[index];
-                return Center( // Centraliza o item na tela
+                return Center(
                   child: SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.8, // Define a largura máxima de 70%
+                    width: MediaQuery.of(context).size.width * 0.8,
                     child: ShinyHuntItem(
                       huntId: huntId,
                       encounters: _huntEncounters[huntId] ?? 0,
                       pokemonIndex: _huntPokemons[huntId] ?? 1,
                       onUpdateHunt: _updateHunt,
                       onDeleteHunt: () => _deleteHunt(huntId),
+                      onHuntSaved: _onHuntSaved, // Passando a função de callback
                     ),
                   ),
                 );

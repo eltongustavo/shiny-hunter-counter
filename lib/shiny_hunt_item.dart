@@ -1,39 +1,16 @@
 import 'package:flutter/material.dart';
 import 'save_to_library_screen.dart';
+import 'pokemon.dart';
 
 class ShinyHuntItem extends StatelessWidget {
-  final List<String> _pokemon_list = [
-    // Lista de Pokémon
-    'Bulbasaur', 'Ivysaur', 'Venusaur', 'Charmander', 'Charmeleon', 'Charizard',
-    'Squirtle', 'Wartortle', 'Blastoise', 'Caterpie', 'Metapod', 'Butterfree',
-    'Weedle', 'Kakuna', 'Beedrill', 'Pidgey', 'Pidgeotto', 'Pidgeot', 'Rattata',
-    'Raticate', 'Spearow', 'Fearow', 'Ekans', 'Arbok', 'Pikachu', 'Raichu',
-    'Sandshrew', 'Sandslash', 'Nidoran♀', 'Nidorina', 'Nidoqueen', 'Nidoran♂',
-    'Nidorino', 'Nidoking', 'Clefairy', 'Clefable', 'Vulpix', 'Ninetales',
-    'Jigglypuff', 'Wigglytuff', 'Zubat', 'Golbat', 'Oddish', 'Gloom', 'Vileplume',
-    'Paras', 'Parasect', 'Venonat', 'Venomoth', 'Diglett', 'Dugtrio', 'Meowth',
-    'Persian', 'Psyduck', 'Golduck','Mankey','Primeape','Growlite','Arcanine','Poliwag'
-    ,'Poliwhirl' ,'Poliwhath','Abra','Kadabra','Alakazam', 'Machop', 'Machoke',
-    'Machamp', 'Bellsprout', 'Weepinbell', 'Victreebel', 'Tentacool', 'Tentacruel',
-    'Geodude', 'Graveler', 'Golem', 'Ponyta', 'Rapidash', 'Slowpoke', 'Slowbro',
-    'Magnemite', 'Magneton','Farfechtd´d','Doduo','Dodrio','Seel','Dewgong',
-    'Grimer','Muk','Shellder','Cloyster','Gastly','Haunter', 'Gengar','Onix','Drowzee',
-    'Hypno', 'Krabby', 'Kingler','Voltorb','Electrode','Exeggcute', 'Exeggutor', 'Cubone',
-    'Marowak', 'Hitmonlee', 'Hitmonchan', 'Lickitung', 'Koffing', 'Weezing', 'Rhyhorn',
-    'Rhydon', 'Chansey', 'Tangela', 'Kangaskhan', 'Horsea', 'Seadra', 'Goldeen',
-    'Seaking', 'Staryu', 'Starmie', 'Mr. Mime', 'Scyther','Jynx', 'Electabuzz', 'Magmar',
-    'Pinsir', 'Tauros', 'Magikarp', 'Gyarados', 'Lapras', 'Ditto', 'Eevee',
-    'Vaporeon', 'Jolteon', 'Flareon', 'Porygon', 'Omanyte', 'Omastar', 'Kabuto',
-    'Kabutops', 'Aerodactyl','Snorlax','Articuno','Zapdos','Moltres'
-    ,'Dratini','Dragonair','Dragonite', 'Mewtwo', 'Mew',
-    // Johto Pokémon 152-251
-  ];
-
   final int huntId;
   final int encounters;
   final int pokemonIndex;
   final Function(int, int, int) onUpdateHunt;
   final VoidCallback onDeleteHunt;
+  final Function() onHuntSaved;  // Callback para atualização
+
+  List<String> pokemonList = Pokemon.getPokemonList();
 
   ShinyHuntItem({
     required this.huntId,
@@ -41,6 +18,7 @@ class ShinyHuntItem extends StatelessWidget {
     required this.pokemonIndex,
     required this.onUpdateHunt,
     required this.onDeleteHunt,
+    required this.onHuntSaved,  // Passando o callback
   });
 
   @override
@@ -82,10 +60,10 @@ class ShinyHuntItem extends StatelessWidget {
                     style: TextStyle(color: Colors.white),
                     isExpanded: true,
                     items: List.generate(
-                      _pokemon_list.length,
+                      pokemonList.length,
                           (index) => DropdownMenuItem<int>(
                         value: index + 1, // Valor baseado no índice + 1
-                        child: Text(_pokemon_list[index], style: TextStyle(color: Colors.white)),
+                        child: Text(pokemonList[index], style: TextStyle(color: Colors.white)),
                       ),
                     ),
                     onChanged: (newValue) {
@@ -129,6 +107,11 @@ class ShinyHuntItem extends StatelessWidget {
                         builder: (context) => SaveToLibraryScreen(
                           pokemonIndex: pokemonIndex,
                           encounters: encounters,
+                          huntId: huntId,
+                          onHuntSaved: () {
+                            // Chama a função de callback para atualizar a tela principal
+                            onHuntSaved();
+                          },
                         ),
                       ),
                     );
@@ -140,7 +123,7 @@ class ShinyHuntItem extends StatelessWidget {
                     minimumSize: Size(double.infinity, 50), // Botão grande e ocupando toda a largura
                   ),
                 ),
-                SizedBox(height: 10),
+                SizedBox(height: 10), // Espaço entre os botões
                 ElevatedButton(
                   onPressed: () async {
                     bool? confirmDelete = await showDialog<bool>(
