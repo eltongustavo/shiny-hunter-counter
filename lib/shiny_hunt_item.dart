@@ -76,7 +76,12 @@ class ShinyHuntItem extends StatelessWidget {
               ],
             ),
             SizedBox(height: 15),
-            Text('$encounters', style: TextStyle(fontSize: 40, color: Colors.white)),
+            GestureDetector(
+              onTap: () {
+                onUpdateHunt(huntId, encounters + 1, pokemonIndex);
+              },
+              child: Text('$encounters', style: TextStyle(fontSize: 70, color: Colors.white)),
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shiny_counter/database_helper.dart';
 import 'package:shiny_counter/shiny_hunt_item.dart';
-import 'save_to_library_screen.dart'; // Importar a tela de salvar na biblioteca
+import 'save_to_library_screen.dart';
 
 class ShinyHuntCounterScreen extends StatefulWidget {
   @override
@@ -11,8 +12,9 @@ class ShinyHuntCounterScreen extends StatefulWidget {
 class _ShinyHuntCounterScreenState extends State<ShinyHuntCounterScreen> {
   List<int> _huntIds = [];
   Map<int, int> _huntEncounters = {};
-  Map<int, int?> _huntPokemons = {}; // Ajuste para permitir valores nulos
+  Map<int, int?> _huntPokemons = {};
   bool _isLoading = true;
+  int? _activeHuntId;
 
   @override
   void initState() {
@@ -38,7 +40,7 @@ class _ShinyHuntCounterScreenState extends State<ShinyHuntCounterScreen> {
 
   Future<void> _createNewHunt() async {
     final dbHelper = DatabaseHelper();
-    await dbHelper.insertShinyHunt(1); // Inserir com índice fixo (pode ser alterado)
+    await dbHelper.insertShinyHunt(1);
     _loadHunts();
   }
 
@@ -58,12 +60,25 @@ class _ShinyHuntCounterScreenState extends State<ShinyHuntCounterScreen> {
       _huntIds.remove(huntId);
       _huntEncounters.remove(huntId);
       _huntPokemons.remove(huntId);
+      if (_activeHuntId == huntId) {
+        _activeHuntId = null;
+      }
     });
   }
 
-  // Função para atualizar o estado quando a hunt for salva
   void _onHuntSaved() {
-    _loadHunts(); // Recarregar a lista de hunts
+    _loadHunts();
+  }
+
+  void _handleKeyPress(RawKeyEvent event) {
+    if (_activeHuntId == null || event is! RawKeyDownEvent) return;
+    if (event.logicalKey == LogicalKeyboardKey.space) {
+      _updateHunt(_activeHuntId!, (_huntEncounters[_activeHuntId!] ?? 0) + 1, _huntPokemons[_activeHuntId!] ?? 1);
+    } else if (event.logicalKey == LogicalKeyboardKey.backspace) {
+      if ((_huntEncounters[_activeHuntId!] ?? 0) > 0) {
+        _updateHunt(_activeHuntId!, (_huntEncounters[_activeHuntId!] ?? 0) - 1, _huntPokemons[_activeHuntId!] ?? 1);
+      }
+    }
   }
 
   @override
@@ -74,39 +89,51 @@ class _ShinyHuntCounterScreenState extends State<ShinyHuntCounterScreen> {
         title: const Text('Shiny Hunt Counter'),
         backgroundColor: Colors.black,
       ),
-      body: Column(
-        children: [
-          ElevatedButton(
-            onPressed: _createNewHunt,
-            child: Text('Adicionar Nova Hunt'),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
-          ),
-          Expanded(
-            child: _isLoading
-                ? Center(child: CircularProgressIndicator())
-                : _huntIds.isEmpty
-                ? Center(child: Text('Não há Shiny Hunts', style: TextStyle(color: Colors.white)))
-                : ListView.builder(
-              itemCount: _huntIds.length,
-              itemBuilder: (context, index) {
-                final huntId = _huntIds[index];
-                return Center(
-                  child: SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.8,
-                    child: ShinyHuntItem(
-                      huntId: huntId,
-                      encounters: _huntEncounters[huntId] ?? 0,
-                      pokemonIndex: _huntPokemons[huntId] ?? 1,
-                      onUpdateHunt: _updateHunt,
-                      onDeleteHunt: () => _deleteHunt(huntId),
-                      onHuntSaved: _onHuntSaved, // Passando a função de callback
-                    ),
-                  ),
-                );
-              },
+      body: RawKeyboardListener(
+        focusNode: FocusNode(),
+        autofocus: true,
+        onKey: _handleKeyPress,
+        child: Column(
+          children: [
+            ElevatedButton(
+              onPressed: _createNewHunt,
+              child: Text('Adicionar Nova Hunt'),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
             ),
-          ),
-        ],
+            Expanded(
+              child: _isLoading
+                  ? Center(child: CircularProgressIndicator())
+                  : _huntIds.isEmpty
+                  ? Center(child: Text('Não há Shiny Hunts', style: TextStyle(color: Colors.white)))
+                  : ListView.builder(
+                itemCount: _huntIds.length,
+                itemBuilder: (context, index) {
+                  final huntId = _huntIds[index];
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _activeHuntId = huntId;
+                      });
+                    },
+                    child: Center(
+                      child: SizedBox(
+                        width: MediaQuery.of(context).size.width * 0.8,
+                        child: ShinyHuntItem(
+                          huntId: huntId,
+                          encounters: _huntEncounters[huntId] ?? 0,
+                          pokemonIndex: _huntPokemons[huntId] ?? 1,
+                          onUpdateHunt: _updateHunt,
+                          onDeleteHunt: () => _deleteHunt(huntId),
+                          onHuntSaved: _onHuntSaved,
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

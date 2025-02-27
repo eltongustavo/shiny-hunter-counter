@@ -181,9 +181,11 @@ class Pokemon {
     'DexNav',
     'Dynamax Adventures',
     'Event',
+    'Egg Hunt',
     'Field Research',
     'Fossil Restore',
     'Friend Safari',
+    'Garantid',
     'Horde Hunting',
     'Island Scan',
     'Masuda Method',
@@ -229,3 +231,4 @@ class Pokemon {
     };
   }
 }
+
