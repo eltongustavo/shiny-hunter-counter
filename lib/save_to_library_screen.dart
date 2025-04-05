@@ -30,7 +30,7 @@ class _SaveToLibraryScreenState extends State<SaveToLibraryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    String formattedDate = DateFormat('dd/MM/yyyy').format(DateTime.now());
+    String formattedDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
 
     String pokemonName = pokemonsList[widget.pokemonIndex - 1];
     return Scaffold(
@@ -65,7 +65,7 @@ class _SaveToLibraryScreenState extends State<SaveToLibraryScreen> {
             SizedBox(height: 20),
             Text("Encontros: ${widget.encounters}", style: TextStyle(fontSize: 18, color: Colors.white)),
             SizedBox(height: 20),
-            Text("Data do Encontro: $formattedDate", style: TextStyle(fontSize: 18, color: Colors.white)),
+            Text("Data: $formattedDate", style: TextStyle(fontSize: 18, color: Colors.white)),
             SizedBox(height: 20),
             DropdownButton<String>(
               hint: Text("Selecione o jogo", style: TextStyle(color: Colors.white)),
@@ -122,7 +122,7 @@ class _SaveToLibraryScreenState extends State<SaveToLibraryScreen> {
                     pokemonName: pokemonName,
                     spriteUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${widget.pokemonIndex}.png',
                     game: selectedGame!,
-                    captureDate: DateFormat('dd/MM/yyyy').format(DateTime.now()),
+                    captureDate: DateFormat('yyyy-MM-dd').format(DateTime.now()),
                     encounters: widget.encounters,
                     method: selectedMethod!,
                   );
