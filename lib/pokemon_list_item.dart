@@ -15,7 +15,8 @@ class PokemonListItem extends StatelessWidget {
         children: [
           Text('Jogo: ${pokemon['game'] ?? 'Desconhecido'}'),
           Text('Data de captura: ${pokemon['capture_date'] ?? 'Desconhecida'}'),
-          Text('Encontros: ${pokemon['encounters'] ?? 0}'),
+          if((pokemon['encounters'] ?? 0) > 0)
+            Text('Encontros: ${pokemon['encounters'] ?? 0}'),
           Text('Método: ${pokemon['method'] ?? 'Desconhecido'}'),
         ],
       ),

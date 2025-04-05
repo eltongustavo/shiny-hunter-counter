@@ -132,10 +132,6 @@ class Pokemon {
 
   // Lista de Jogos
   static final List<String> _games = [
-    'Pokémon Red',
-    'Pokémon Blue',
-    'Pokémon Green',
-    'Pokémon Yellow',
     'Pokémon Gold',
     'Pokémon Silver',
     'Pokémon Crystal',
@@ -174,7 +170,6 @@ class Pokemon {
 
   // Lista de Métodos de captura
   static final List<String> _methods = [
-    'Battle Method',
     'Breeding',
     'Catch Combo',
     'Chain Fishing',
@@ -182,26 +177,16 @@ class Pokemon {
     'Dynamax Adventures',
     'Event',
     'Egg Hunt',
-    'Field Research',
     'Fossil Restore',
-    'Friend Safari',
     'Garantid',
     'Horde Hunting',
-    'Island Scan',
-    'Masuda Method',
-    'Mystery Gift',
-    'Outbreak Method',
-    'Poké Pelago',
     'Pokéradar',
-    'Raid Battle',
     'Random Encounter',
-    'Run Away',
     'SOS Calling',
     'Soft Resetting',
     'Tera Raid',
     'Trade',
     'Ultra Wormhole',
-    'Wonder Trade',
   ];
 
   // Método estático para acessar a lista de Pokémon

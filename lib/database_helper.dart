@@ -26,43 +26,37 @@ class DatabaseHelper {
 
   Database? _database;
 
+  // Getter para retornar ou inicializar o banco
   Future<Database> get database async {
     if (_database != null) return _database!;
     _database = await _initDatabase();
     return _database!;
   }
 
+  // Inicializa o banco dependendo da plataforma
   Future<Database> _initDatabase() async {
-    // Inicializa o suporte FFI para Windows/Linux
     if (Platform.isWindows || Platform.isLinux) {
       sqfliteFfiInit();
       databaseFactory = databaseFactoryFfi;
     }
 
-    String path = await _getDatabasePath(_databaseName);
-    print("Database path: $path");
+    final path = await _getDatabasePath(_databaseName);
 
-    // Verifica se o banco de dados existe. Se não, cria.
     if (!await File(path).exists()) {
       print("Banco de dados não encontrado, criando...");
       await _onCreate(await openDatabase(path), _databaseVersion);
     }
 
-    try {
-      return await openDatabase(path, version: _databaseVersion, onCreate: _onCreate);
-    } catch (e) {
-      print("Erro ao abrir o banco de dados: $e");
-      rethrow;
-    }
+    return await openDatabase(path, version: _databaseVersion, onCreate: _onCreate);
   }
 
+  // Retorna o caminho do banco conforme a plataforma
   Future<String> _getDatabasePath(String dbName) async {
     Directory directory;
 
     if (Platform.isAndroid || Platform.isIOS) {
       directory = await getApplicationDocumentsDirectory();
     } else if (Platform.isWindows || Platform.isLinux) {
-      // Obtém o diretório onde o executável está rodando
       directory = File(Platform.resolvedExecutable).parent;
     } else {
       directory = Directory.current;
@@ -71,12 +65,7 @@ class DatabaseHelper {
     return join(directory.path, dbName);
   }
 
-  Future<void> deleteDatabaseAndRecreate() async {
-    final path = await _getDatabasePath(_databaseName);
-    await databaseFactory.deleteDatabase(path);
-    _database = await _initDatabase();
-  }
-
+  // Criação inicial do banco de dados
   Future<void> _onCreate(Database db, int version) async {
     await db.execute(''' 
       CREATE TABLE $tablePokemon (
@@ -101,6 +90,7 @@ class DatabaseHelper {
     print("Banco de dados criado com sucesso!");
   }
 
+  // Remove e recria o banco de dados do zero
   Future<void> dropAndRecreateDatabase() async {
     final db = await database;
     await db.execute('DROP TABLE IF EXISTS $tablePokemon');
@@ -108,14 +98,16 @@ class DatabaseHelper {
     await _onCreate(db, _databaseVersion);
   }
 
+  // Insere um Pokémon na biblioteca
   Future<void> insertPokemon(Pokemon pokemon) async {
     final db = await database;
+
+    // Verificação de campos obrigatórios
     if (pokemon.pokemonName.isEmpty ||
         pokemon.spriteUrl.isEmpty ||
         pokemon.game.isEmpty ||
-        pokemon.captureDate.isEmpty ||
         pokemon.method.isEmpty) {
-      print('Erro: um dos campos necessários está vazio.');
+      print('Erro: um dos campos obrigatórios está vazio.');
       return;
     }
 
@@ -131,6 +123,7 @@ class DatabaseHelper {
     }
   }
 
+  // Exclui um Pokémon pelo ID
   Future<void> deletePokemon(int pokemonId) async {
     final db = await database;
     await db.delete(
@@ -140,9 +133,13 @@ class DatabaseHelper {
     );
   }
 
+  // Busca todos os Pokémon, ordenados pela data (mais recentes primeiro)
   Future<List<Map<String, dynamic>>> getAllPokemon() async {
     final db = await database;
-    var result = await db.query(tablePokemon);
+    final result = await db.query(
+      tablePokemon,
+      orderBy: '$columnDate DESC', // Mostra os mais recentes primeiro
+    );
 
     return result.map((pokemon) {
       return {
@@ -157,9 +154,10 @@ class DatabaseHelper {
     }).toList();
   }
 
+  // Busca um Pokémon pelo ID
   Future<Map<String, dynamic>?> getPokemonById(int id) async {
     final db = await database;
-    var result = await db.query(
+    final result = await db.query(
       tablePokemon,
       where: '$columnId = ?',
       whereArgs: [id],
@@ -168,6 +166,7 @@ class DatabaseHelper {
     return result.isNotEmpty ? result.first : null;
   }
 
+  // Inserir uma nova shiny hunt
   Future<void> insertShinyHunt(int indexPokemon) async {
     final db = await database;
     await db.insert(
@@ -180,9 +179,10 @@ class DatabaseHelper {
     );
   }
 
+  // Retorna todas as shiny hunts
   Future<List<Map<String, dynamic>>> getAllShinyHunts() async {
     final db = await database;
-    var result = await db.query(tableShinyHunts);
+    final result = await db.query(tableShinyHunts);
 
     return result.map((hunt) {
       return {
@@ -193,6 +193,7 @@ class DatabaseHelper {
     }).toList();
   }
 
+  // Atualiza dados de uma shiny hunt
   Future<void> updateShinyHunt(int huntId, int encounters, int pokemonIndex) async {
     final db = await database;
     await db.update(
@@ -206,6 +207,7 @@ class DatabaseHelper {
     );
   }
 
+  // Remove uma shiny hunt
   Future<void> deleteShinyHunt(int huntId) async {
     final db = await database;
     await db.delete(
@@ -213,5 +215,12 @@ class DatabaseHelper {
       where: '$columnHuntId = ?',
       whereArgs: [huntId],
     );
+  }
+
+  // Deleta o banco e recria tudo
+  Future<void> deleteDatabaseAndRecreate() async {
+    final path = await _getDatabasePath(_databaseName);
+    await databaseFactory.deleteDatabase(path);
+    _database = await _initDatabase();
   }
 }
